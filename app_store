@@ -1,0 +1,96 @@
+SELECT *
+FROM app_store_apps
+
+SELECT name 
+FROM play_store_apps 
+INNER JOIN app_store_apps 
+USING(name)
+
+SELECT *
+FROM (SELECT *
+FROM play_store_apps 
+INNER JOIN app_store_apps 
+USING(name)) AS combined
+
+SELECT DISTINCT(name), rating, rating_1, price, price_1, content_rating, content_rating_1, primary_genre
+FROM (SELECT *
+FROM play_store_apps 
+INNER JOIN app_store_apps 
+USING(name)) AS combined
+ORDER BY rating_1 DESC
+
+/* Brought to you by the top rating for app store
+1.ASOS rating = 5.0 in app store and 4.7 in play store
+2.Dominos pizza usa rating = 5.0 in app store and 4.7 in play store
+3.Egg inc. rating = 5.0 in app store and 4.7 in play store
+4.geometry dash lite rating = 5.0 in app store and 4.5 in play store
+5.Pewdiepies tuber simulator rating = 5.0 in app store and 4.8 in play store; teen -play store and 9+ -app store
+6.the guardian rating = 5.0 in app store and 4.7 in play store; teen -play store and 12+ -app store
+7.adobe illustrator draw rating 4.5 in app store and 4.4 in play store
+8.Afterlight rating = 4.5 in app store and 4.3 in play store
+9.agar.io rating = 4.5 in app store and 4.2 in play store; everyone -play store and 9+ -app store
+10.angry birds blast rating = 4.5 app store and 4.6 play store */ 
+
+/* Brought to you by the top ratings for the play store 
+1.fernanfloo 4.5 app store and 4.8 play store; everyone 10+ -play store and 9+ -app store
+2.pewdiepie tuber simulator 5.0 app store and 4.8 play store; teen -play store and 9+ -app store
+3.ASOS 5.0 app store and 4.7 play store
+4.bible 4.5 app store and 4.7 play store; teen -play store
+5.decks heros legacy 4.0 app store and 4.7 play store; teen -play store and 17+ -app store
+6.dominos pizza usa 5.0 app store and 4.7 play store
+7.egg inc 5.0 app store and 4.7 play store
+8.narcos cartel wars 4.5 app store and 4.7 play store; teen -play store and 12+ -app store
+9.solitaire 4.5 app store and 4.7 play store
+10.the guardian 5.0 app store and 4.7 play store, teen -play store and 12+ -app store */
+
+/* apps that showed up in both columns
+1.ASOS
+2.Dominos Pizza USA 
+3.EGG,Inc
+4.PewDiePie's Tuber Simulator
+5.The Guardian */
+
+/*Top 10 lifetime value hollys list
+1.PewDiePie's Tuber Simulator
+2.ASOS
+3.Domino's Pizza USA
+4.Egg, Inc.
+5.The Guardian
+6.Cytus
+7.Geometry Dash Lite
+8.Fernanfloo
+9.Bible
+10.Narcos: Cartel Wars
+11.Solitaire
+12.Toy Blast
+13.Zombie Catchers */
+
+/* top apps from zenon and holly parameters
+1.ASOS
+2.Domino's Pizza USA
+3.Egg,Inc
+4.PewDiePie Tuber Simulator
+5.The Guardian */
+
+/*top apps from jonathans parameters
+1.Bible
+2.Narcos cartel wars
+3.Geometry dash lite
+4.Toy blast
+5.ASOS
+6.Solitaire
+7.Fernanfloo
+8.Egg inc
+9.Zombie catchers
+10.PDP tuber simulator 
+11.The guardian
+12.Dominos pizza usa 
+
+/* top apps from all combined parameters
+1.ASOS
+2.Dominos Pizza USA
+3.Egg,Inc
+4.PDP Tuber Simulator
+5.The Guardian */
+
+Bible, Cytus($1.99), Geometry dash lite, Fernanfloo, Narcos: Cartel wars, Solitaire
