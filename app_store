@@ -6,7 +6,7 @@ FROM play_store_apps
 INNER JOIN app_store_apps 
 USING(name)
 
-SELECT *
+SELECT DISTINCT *
 FROM (SELECT *
 FROM play_store_apps 
 INNER JOIN app_store_apps 
@@ -17,7 +17,56 @@ FROM (SELECT *
 FROM play_store_apps 
 INNER JOIN app_store_apps 
 USING(name)) AS combined
-ORDER BY rating_1 DESC
+ORDER BY rating DESC
+
+
+SELECT DISTINCT(name), rating, rating_1, price, price_1, content_rating, content_rating_1, primary_genre, category_1
+FROM (SELECT *
+FROM play_store_apps 
+INNER JOIN app_store_apps 
+USING(name)) AS combined
+ORDER BY price DESC
+
+SELECT DISTINCT (name), rating, rating_1, price, price_1,
+	CASE WHEN price < 1 THEN 'low cost'
+		WHEN price >= 1 and price < 4.99 THEN 'medium cost'
+		WHEN price >= 5 THEN 'high cost' END as ordered_cost
+		FROM (SELECT *
+FROM play_store_apps 
+INNER JOIN app_store_apps 
+USING(name)) AS combined
+ORDER BY price ASC;
+
+SELECT DISTINCT (name), rating_1, price_1,
+	CASE WHEN price_1::money::numeric < 1 THEN 'low cost'
+		WHEN price_1::money::numeric >= 1 and price_1::money::numeric < 4.99 THEN 'medium cost'
+		WHEN price_1::money::numeric >= 5 THEN 'high cost' END as ordered_cost_1
+FROM play_store_apps WHERE rating_1 IS NOT null
+ORDER BY rating_1 DESC;
+
+WITH cost_categories AS(SELECT DISTINCT (name), rating, rating_1, price, price_1,
+	CASE WHEN price < 1 THEN 'low cost'
+		WHEN price >= 1 and price < 5 THEN 'medium cost'
+		WHEN price >= 5 THEN 'high cost' END as ordered_cost,
+	CASE WHEN price_1::money::numeric < 1 THEN 'low cost'
+		WHEN price_1::money::numeric >= 1 and price_1::money::numeric < 5 THEN 'medium cost'
+		WHEN price_1::money::numeric >= 5 THEN 'high cost' END as ordered_cost_1
+FROM play_store_apps
+INNER JOIN app_store_apps
+USING (name)
+WHERE rating_1 IS NOT null
+ORDER BY rating DESC)
+
+SELECT COUNT(name), ordered_cost
+FROM cost_categories
+GROUP BY ordered_cost; 
+
+SELECT COUNT(DISTINCT name), ordered_cost_1
+FROM cost_categories
+GROUP BY ordered_cost_1
+
+
+
 
 /* Brought to you by the top rating for app store
 1.ASOS rating = 5.0 in app store and 4.7 in play store
