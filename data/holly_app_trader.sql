@@ -32,6 +32,7 @@ income_expense AS (	SELECT 	CASE
 							*
 					FROM apps_in_both_stores)
 
+--ELV of individual apps
 SELECT  name, 
 		primary_genre AS app_store_genre, 
 		category AS play_store_genre,
@@ -41,59 +42,56 @@ SELECT  name,
 		play_cr,
 		(income - initial_cost - operating_cost)::money AS lifetime_value
 FROM income_expense
-ORDER BY lifetime_value DESC
+ORDER BY lifetime_value DESC;
 
-
---using app store genre
-SELECT primary_genre, 
-	   ROUND(AVG(play_rating),2) AS avg_play_rating, 
-	   ROUND(AVG(app_rating),2) AS avg_app_rating,
-	   ROUND(AVG(play_price),2) AS avg_play_price,
-	   ROUND(AVG(app_price),2) AS avg_app_price
-FROM apps_in_both_stores 
+--average ELV by app store genre
+SELECT 	DISTINCT(primary_genre) AS app_store_genre,
+		COUNT(name),
+		AVG(income-initial_cost-operating_cost)::money AS avg_lifetime_value,
+	   	AVG(app_price)::money AS avg_app_store_price,
+		ROUND(AVG(app_rating),2) AS avg_app_store_rating
+FROM income_expense
 GROUP BY primary_genre
-ORDER BY combined_rating DESC;
---"Catalogs"			4.60	4.50	9.10	7.99	7.99
---"Book"				4.50	4.50	9.00	2.99	2.99
---"Health & Fitness"	4.40	4.50	8.90	2.16	2.16
+ORDER BY avg_lifetime_value DESC
 
---using play store genre
-SELECT category, 
-	   ROUND(AVG(play_rating),2) AS avg_play_rating, 
-	   ROUND(AVG(app_rating),2) AS avg_app_rating, 
-	   ROUND(AVG(play_price),2) AS avg_play_price,
-	   ROUND(AVG(app_price),2) AS avg_app_price
-FROM apps_in_both_stores 
+--average ELV by play store genre
+SELECT 	DISTINCT(category) AS play_store_genre,
+		COUNT(name),
+		AVG(income-initial_cost-operating_cost)::money AS avg_lifetime_value,
+		AVG(play_price)::money AS avg_play_store_price,
+		ROUND(AVG(play_rating),2) AS avg_play_store_rating
+FROM income_expense
 GROUP BY category
-ORDER BY combined_rating DESC;
---"BOOKS_AND_REFERENCE"	4.70	4.50	9.20	0.00	0.00
---"GAME"				4.42	4.34	8.76	0.27	0.45
---"HEALTH_AND_FITNESS"	4.36	4.36	8.72	1.85	1.85
+ORDER BY avg_lifetime_value DESC
 
-SELECT *
-FROM apps_in_both_stores 
-WHERE category IN ('BOOKS_AND_REFERENCE','GAME','HEALTH_AND_FITNESS') 
-OR primary_genre IN ('Catalogs', 'Book', 'Health & Fitness')
-ORDER BY lifetime_value
+--brainstorming ELV concept
+/*If price $1 or less... ($5000 * 12)* $10,000 * 2
+PROFIT = (5000*12*Ya + 5000*12*Yp)/2 - 10,000*a - 10,000*p - 1000*12*MAX(Ya,Yp)
+		30,000Ya + 30,000*Yp - 20,000 - 12,000*MAX(Ya,Yp)
+		(30000*yrs_play_str - 12000*yrs_play_str)
+*/		
 
---If price $1 or less... ($5000 * 12)* $10,000 * 2
--- PROFIT = (5000*12*Ya + 5000*12*Yp)/2 - 10,000*a - 10,000*p - 1000*12*MAX(Ya,Yp)
--- 		30,000Ya + 30,000*Yp - 20,000 - 12,000*MAX(Ya,Yp)
--- 		(30000*yrs_play_str - 12000*yrs_play_str)
-		
-SELECT 18000*years_in_play_store + 30000*years_in_app_store - 20000 AS lifetime_value,
-		*
-FROM apps_in_both_stores
-WHERE years_in_play_store >= years_in_app_store
-UNION
-SELECT 18000*years_in_app_store + 30000*years_in_play_store - 20000 AS lifetime_value,
-		*
-FROM apps_in_both_stores
-WHERE years_in_app_store > years_in_play_store
-ORDER BY lifetime_value DESC
+--helping Zenon with average ELV by cost category
+cost_cat AS (SELECT CASE WHEN app_price <= 1 THEN 'low cost (<= $1)'
+						 WHEN app_price > 1 AND app_price <= 5 THEN 'med cost (<= $5)'
+						 WHEN app_price > 5 THEN 'high cost (> $5)'
+					END AS app_cost_cat,
+					CASE WHEN play_price <= 1 THEN 'low cost (<= $1)'
+						 WHEN play_price > 1 AND play_price <= 5 THEN 'med cost (<= $5)'
+						 WHEN play_price > 5 THEN 'high cost (> $5)'
+					END AS play_cost_cat,
+					*
+			 FROM income_expense)
+			 
+SELECT app_cost_cat,
+		AVG(income-initial_cost-operating_cost)::money
+FROM cost_cat
+GROUP BY app_cost_cat
 
-
-						
+SELECT play_cost_cat,
+		AVG(income-initial_cost-operating_cost)::money
+FROM cost_cat
+GROUP BY app_cost_cat
 
 	   
 		
